@@ -8,7 +8,9 @@
 
 #define INPUT_MOVEMENT_FWD_BWD "MovementForwardBackward"
 #define INPUT_MOVEMENT_LEFT_RIGHT "MovementLeftRight"
+#define INPUT_SHOOT "Shoot"
 
+class AProjectile;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -29,6 +31,10 @@ protected:
 	USpringArmComponent* SpringArmComponent;
 	UPROPERTY(EditDefaultsOnly)
 	UCameraComponent* PlayerCamera;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AProjectile> ProjectileClass;
+	
 	UPROPERTY(EditDefaultsOnly)
 	FVector BaseSpeed = FVector(100.0f, 0.0f, 0.0f);	
 	UPROPERTY(EditDefaultsOnly)
@@ -43,10 +49,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+protected:
 	void MoveLeftRight(float AxisValue);
 	void MoveForwardBackward(float AxisValue);
+	void Shoot();
 	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };

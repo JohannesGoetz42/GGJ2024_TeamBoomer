@@ -5,6 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Player/Projectile.h"
 
 // Sets default values
 APlayerPawn::APlayerPawn()
@@ -21,6 +22,10 @@ APlayerPawn::APlayerPawn()
 
 	CharacterMesh = CreateDefaultSubobject<UStaticMeshComponent>("Character mesh");
 	CharacterMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+	CharacterMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CharacterMesh->SetCollisionObjectType(ECC_Pawn);
+	CharacterMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 }
 
 // Called when the game starts or when spawned
@@ -48,10 +53,23 @@ void APlayerPawn::MoveForwardBackward(float AxisValue)
 	MovementInput.X = AxisValue * MaxMovementSpeed;
 }
 
+void APlayerPawn::Shoot()
+{
+	if (ensure(ProjectileClass))
+	{
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.Instigator = this;
+		SpawnParameters.Owner = this;
+		GetWorld()->SpawnActor<AProjectile>(ProjectileClass, CharacterMesh->GetComponentTransform(), SpawnParameters);
+	}
+}
+
 // Called to bind functionality to input
 void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAxis("MovementLeftRight", this, &APlayerPawn::MoveLeftRight);
-	PlayerInputComponent->BindAxis("MovementForwardBackward", this, &APlayerPawn::MoveForwardBackward);
+
+	PlayerInputComponent->BindAxis(INPUT_MOVEMENT_LEFT_RIGHT, this, &APlayerPawn::MoveLeftRight);
+	PlayerInputComponent->BindAxis(INPUT_MOVEMENT_FWD_BWD, this, &APlayerPawn::MoveForwardBackward);
+	PlayerInputComponent->BindAction(INPUT_SHOOT, EInputEvent::IE_Pressed, this, &APlayerPawn::Shoot);
 }
