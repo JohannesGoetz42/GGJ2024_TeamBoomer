@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GGJ2024_TeamBoomer.h"
 #include "Modules/ModuleManager.h"
