@@ -1,7 +1,9 @@
 .vs/
 .vscode/
 .idea/
-Binaries/
 Intermediate/
 Saved/
-Build
+*.pdb
+*.lib
+*.exe
+*.exp
