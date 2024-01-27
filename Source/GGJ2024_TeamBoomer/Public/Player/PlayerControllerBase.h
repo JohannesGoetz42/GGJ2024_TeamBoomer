@@ -14,6 +14,9 @@ class GGJ2024_TEAMBOOMER_API APlayerControllerBase : public APlayerController
 {
 	GENERATED_BODY()
 
+public:
+	FVector GetCursorWorldLocation() const;
+	
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> CursorWidgetClass;

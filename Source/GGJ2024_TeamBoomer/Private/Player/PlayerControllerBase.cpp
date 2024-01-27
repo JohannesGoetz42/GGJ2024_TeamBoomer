@@ -5,6 +5,17 @@
 
 #include "Blueprint/UserWidget.h"
 
+FVector APlayerControllerBase::GetCursorWorldLocation() const
+{
+	FHitResult HitResult;
+	if (GetHitResultUnderCursor(ECC_Camera, false, HitResult))
+	{
+		return HitResult.Location;
+	}
+
+	return FVector::Zero();
+}
+
 void APlayerControllerBase::BeginPlay()
 {
 	Super::BeginPlay();

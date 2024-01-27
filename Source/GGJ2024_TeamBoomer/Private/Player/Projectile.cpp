@@ -20,10 +20,18 @@ AProjectile::AProjectile()
 }
 
 AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, APawn* Instigator,
-                                          const FTransform& SpawnTransform, const FVector& SourceVelocity)
+                                          const FVector& SourceLocation, const FVector& TargetLocation,
+                                          const FVector& SourceVelocity)
 {
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = Instigator;
+
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(SourceLocation);	
+	FVector Direction = TargetLocation - SourceLocation;
+	Direction.Z = SourceLocation.Z;
+	SpawnTransform.SetRotation(FQuat::FindBetweenVectors(FVector::ForwardVector, Direction));
+	
 	AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SpawnTransform, SpawnParameters);
 	const FVector Impulse = SourceVelocity + SpawnedProjectile->GetActorRotation().RotateVector(
 		SpawnedProjectile->ProjectileImpulse);
