@@ -11,10 +11,12 @@ AProjectile::AProjectile()
 	ProjectileMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	ProjectileMesh->SetCollisionObjectType(ECC_Pawn);
+	ProjectileMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
 	ProjectileMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 
 	ProjectileMesh->SetSimulatePhysics(true);
 	ProjectileMesh->SetEnableGravity(true);
+	ProjectileMesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleCollision);
 }
 
 AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass,
@@ -25,4 +27,10 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
 	SpawnedProjectile->ProjectileMesh->AddImpulse(SourceVelocity + SpawnedProjectile->ProjectileImpulse, NAME_None,
 	                                              true);
 	return SpawnedProjectile;
+}
+
+void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	Destroy();
 }
