@@ -46,16 +46,21 @@ protected:
 	float MaxMovementSpeed = 50.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float JumpStrength = 100.0f;
+	UPROPERTY(EditDefaultsOnly)
+	/** How long it takes for one tear fluid unit to decay */
+	float TearFluidDecay = 1.0f;
 	UPROPERTY(BlueprintAssignable)
 	FTearFluidAmountChangedDelegate OnTearFluidAmountChanged;
 
 	FVector MovementInput;
+	float TearDecayIntervalTime;
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	void AddTearFluid(int32 AddedAmount);
+	void RemoveTearFluidAmount(int32 RemovedAmount);
 
 protected:
 	UFUNCTION()

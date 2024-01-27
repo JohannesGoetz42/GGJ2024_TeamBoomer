@@ -6,7 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/TriggerBox.h"
-#include "Environment/BasicObstacle.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MovementSpline.h"
@@ -23,7 +22,7 @@ APlayerPawn::APlayerPawn()
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Camera boom");
 	SpringArmComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	SpringArmComponent->bDoCollisionTest = false;
-	
+
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("Player camera");
 	PlayerCamera->AttachToComponent(SpringArmComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -34,13 +33,6 @@ APlayerPawn::APlayerPawn()
 	CharacterMesh->SetCollisionObjectType(ECC_Pawn);
 	CharacterMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	CharacterMesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
-}
-
-// Called every frame
-void APlayerPawn::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	CharacterMesh->AddRelativeLocation(MovementInput * DeltaTime);
 }
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
@@ -54,9 +46,23 @@ void APlayerPawn::AddTearFluid(int32 AddedAmount)
 	OnTearFluidAmountChanged.Broadcast();
 }
 
+void APlayerPawn::RemoveTearFluidAmount(int32 RemovedAmount)
+{
+	CurrentTearFluid -= RemovedAmount;
+	if(CurrentTearFluid <= 0)
+	{
+		CurrentTearFluid = 0;
+		HandleGameOver();
+	}
+	
+	OnTearFluidAmountChanged.Broadcast();
+
+}
+
 // ReSharper disable once CppMemberFunctionMayBeConst - bound to overlap delegate
 void APlayerPawn::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                const FHitResult& SweepResult)
 {
 	if (OtherActor->IsA<ATriggerBox>())
 	{
@@ -84,8 +90,7 @@ void APlayerPawn::Shoot()
 			const FVector TargetLocation = PlayerController->GetCursorWorldLocation();
 			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, CharacterMesh->GetComponentLocation(),
 			                             TargetLocation, MovementInput);
-			CurrentTearFluid -= ProjectileClass.GetDefaultObject()->GetTearFluidCost();
-			OnTearFluidAmountChanged.Broadcast();
+			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());
 		}
 	}
 }
@@ -139,5 +144,19 @@ void APlayerPawn::BeginPlay()
 	if (ensure(MovementSplines.Num() == 1))
 	{
 		Cast<AMovementSpline>(MovementSplines.Last())->ControlPawn(this);
+	}
+}
+
+// Called every frame
+void APlayerPawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	CharacterMesh->AddRelativeLocation(MovementInput * DeltaTime);
+
+	TearDecayIntervalTime += DeltaTime;
+	if (TearDecayIntervalTime > TearFluidDecay)
+	{
+		TearDecayIntervalTime -= TearFluidDecay;
+		RemoveTearFluidAmount(1);
 	}
 }
