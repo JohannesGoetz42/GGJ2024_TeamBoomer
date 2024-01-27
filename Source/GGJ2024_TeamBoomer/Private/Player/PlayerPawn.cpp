@@ -5,6 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SphereComponent.h"
 #include "Engine/TriggerBox.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,11 +29,14 @@ APlayerPawn::APlayerPawn()
 
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Character mesh");
 	Mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetCollisionObjectType(ECC_Pawn);
-	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	Mesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
+	CollisionSphere = CreateDefaultSubobject<USphereComponent>("Collision sphere");
+	CollisionSphere->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform, SOCKETS_CENTER);
+	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CollisionSphere->SetCollisionObjectType(ECC_Pawn);
+	CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
 }
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
@@ -90,17 +94,18 @@ void APlayerPawn::Shoot()
 			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, Mesh->GetComponentLocation(),
 			                             TargetLocation, MovementInput);
 			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());
-
+			
 			PlayAnimation(AnimationData.ShootAnimation);
 		}
 	}
 }
 
-void APlayerPawn::PlayAnimation(UAnimSequence* Animation)
+void APlayerPawn::PlayAnimation(UAnimSequence* Animation, float PlaybackSpeed)
 {
 	if (ensure(Animation))
 	{
 		Mesh->PlayAnimation(Animation, false);
+		Mesh->SetPlayRate(PlaybackSpeed);
 		SetRestoreMovementTimer(Animation->GetPlayLength());
 	}
 }
@@ -176,7 +181,11 @@ void APlayerPawn::Tick(float DeltaTime)
 		RemoveTearFluidAmount(1);
 	}
 
-	Mesh->SetPlayRate((Mesh->GetComponentLocation().X - PreviousTickLocation.X) * DeltaTime);
+	if (!GetWorld()->GetTimerManager().IsTimerActive(RestoreMovementTimer))
+	{
+		Mesh->SetPlayRate((Mesh->GetComponentLocation().X - PreviousTickLocation.X) * DeltaTime);
+	}
+	
 	PreviousTickLocation = Mesh->GetComponentLocation();
 }
 

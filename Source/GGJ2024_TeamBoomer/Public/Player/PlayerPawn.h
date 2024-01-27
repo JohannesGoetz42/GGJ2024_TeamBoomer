@@ -11,6 +11,9 @@
 #define INPUT_SHOOT "Shoot"
 #define INPUT_JUMP "Jump"
 
+#define SOCKETS_CENTER FName("Center") 
+
+class USphereComponent;
 class UPlayerAnimBP;
 class USplineComponent;
 class AProjectile;
@@ -42,6 +45,8 @@ public:
 	APlayerPawn();
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USphereComponent> CollisionSphere;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 	UPROPERTY(EditDefaultsOnly)
@@ -90,7 +95,7 @@ protected:
 	void MoveForwardBackward(float AxisValue);
 	void Shoot();
 	void StartJump() { PlayAnimation(AnimationData.JumpAnimation); }
-	void PlayAnimation(UAnimSequence* Animation);
+	void PlayAnimation(UAnimSequence* Animation, float PlaybackSpeed = 1.0f);
 	void SetRestoreMovementTimer(float Delay);
 	void HandleGameOver() const;
 
