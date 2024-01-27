@@ -20,6 +20,8 @@ protected:
 	TObjectPtr<UStaticMeshComponent> Mesh;
 	UPROPERTY(EditAnywhere)
 	int32 TearFluidReward = 5;
+	UPROPERTY(EditAnywhere)
+	float HitDefaultMass = 1.0f;
 
 	UFUNCTION()
 	void HandleObstacleHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

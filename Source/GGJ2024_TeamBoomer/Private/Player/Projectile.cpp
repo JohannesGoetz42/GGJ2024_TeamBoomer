@@ -6,6 +6,9 @@
 // Sets default values
 AProjectile::AProjectile()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
+
 	RootComponent = CreateDefaultSubobject<USceneComponent>("Root component");
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>("Projectile mesh");
 	ProjectileMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -27,11 +30,11 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
 	SpawnParameters.Instigator = Instigator;
 
 	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(SourceLocation);	
+	SpawnTransform.SetLocation(SourceLocation);
 	FVector Direction = TargetLocation - SourceLocation;
 	Direction.Z = SourceLocation.Z;
 	SpawnTransform.SetRotation(FQuat::FindBetweenVectors(FVector::ForwardVector, Direction));
-	
+
 	AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SpawnTransform, SpawnParameters);
 	const FVector Impulse = SourceVelocity + SpawnedProjectile->GetActorRotation().RotateVector(
 		SpawnedProjectile->ProjectileImpulse);
@@ -44,4 +47,16 @@ void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AAct
                                   const FHitResult& SweepResult)
 {
 	Destroy();
+}
+
+FVector AProjectile::GetImpulse() const
+{
+	return (ProjectileMesh->GetComponentLocation() - PreviousTickLocation) * Mass;
+}
+
+void AProjectile::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	PreviousTickLocation = ProjectileMesh->GetComponentLocation();
 }

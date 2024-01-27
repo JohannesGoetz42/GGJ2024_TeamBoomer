@@ -3,6 +3,7 @@
 
 #include "Environment/BasicObstacle.h"
 
+#include "Interfaces/AppliesPhysicsImpulse.h"
 #include "Player/PlayerPawn.h"
 
 // Sets default values
@@ -34,8 +35,10 @@ void ABasicObstacle::HandleObstacleHit(UPrimitiveComponent* OverlappedComponent,
 	}
 
 	Mesh->SetSimulatePhysics(true);
-	const FVector Impulse = OtherComp->GetMass() * 0.1f * OtherComp->GetPhysicsLinearVelocity();
-	Mesh->AddImpulseAtLocation(Impulse, SweepResult.Location);
+	if (const IAppliesPhysicsImpulse* ImpulseSource = Cast<IAppliesPhysicsImpulse>(OtherActor); ensure(ImpulseSource))
+	{
+		Mesh->AddImpulseAtLocation(ImpulseSource->GetImpulse(), SweepResult.Location);
+	}
 }
 
 // Called when the game starts or when spawned

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Interfaces/AppliesPhysicsImpulse.h"
 #include "PlayerPawn.generated.h"
 
 #define INPUT_MOVEMENT_FWD_BWD "MovementForwardBackward"
@@ -36,8 +37,10 @@ struct FAnimationData
 };
 
 UCLASS()
-class GGJ2024_TEAMBOOMER_API APlayerPawn : public APawn
+class GGJ2024_TEAMBOOMER_API APlayerPawn : public APawn, public IAppliesPhysicsImpulse
 {
+
+private:
 	GENERATED_BODY()
 
 public:
@@ -72,6 +75,8 @@ protected:
 	float TearFluidDecay = 1.0f;
 	UPROPERTY(BlueprintAssignable)
 	FTearFluidAmountChangedDelegate OnTearFluidAmountChanged;
+	UPROPERTY(EditDefaultsOnly)
+	float Mass = 10.0f;
 
 	FTimerHandle RestoreMovementTimer;
 	FVector MovementInput;
@@ -99,6 +104,7 @@ protected:
 	void SetRestoreMovementTimer(float Delay);
 	void HandleGameOver() const;
 
+	virtual FVector GetImpulse() const override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;

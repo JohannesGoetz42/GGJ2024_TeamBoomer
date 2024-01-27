@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/AppliesPhysicsImpulse.h"
 #include "Projectile.generated.h"
 
 UCLASS()
-class GGJ2024_TEAMBOOMER_API AProjectile : public AActor
+class GGJ2024_TEAMBOOMER_API AProjectile : public AActor, public IAppliesPhysicsImpulse
 {
+private:
 	GENERATED_BODY()
 
 public:
@@ -26,13 +28,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float MaxLifetime = 5.0f;
 	UPROPERTY(EditDefaultsOnly)
+	float Mass = 5.0f;
+	UPROPERTY(EditDefaultsOnly)
 	int32 TearFluidCost = 10;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> ProjectileMesh;
 
 	float CurrentLifeTime;
+	FVector PreviousTickLocation;
 
 	UFUNCTION()
 	void HandleCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	                     int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual FVector GetImpulse() const override;
+	virtual void Tick(float DeltaSeconds) override;
 };

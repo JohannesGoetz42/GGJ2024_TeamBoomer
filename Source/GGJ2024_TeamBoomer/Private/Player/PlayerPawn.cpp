@@ -94,7 +94,7 @@ void APlayerPawn::Shoot()
 			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, Mesh->GetComponentLocation(),
 			                             TargetLocation, MovementInput);
 			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());
-			
+
 			PlayAnimation(AnimationData.ShootAnimation);
 		}
 	}
@@ -138,6 +138,11 @@ void APlayerPawn::HandleGameOver() const
 			GameOverScreen->AddToViewport();
 		}
 	}
+}
+
+FVector APlayerPawn::GetImpulse() const
+{
+	return (Mesh->GetComponentLocation() - PreviousTickLocation) * Mass;
 }
 
 // Called to bind functionality to input
@@ -185,7 +190,7 @@ void APlayerPawn::Tick(float DeltaTime)
 	{
 		Mesh->SetPlayRate((Mesh->GetComponentLocation().X - PreviousTickLocation.X) * DeltaTime);
 	}
-	
+
 	PreviousTickLocation = Mesh->GetComponentLocation();
 }
 
