@@ -9,7 +9,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MovementSpline.h"
-#include "Player/PlayerAnimBP.h"
 #include "Player/PlayerControllerBase.h"
 #include "Player/Projectile.h"
 
@@ -34,8 +33,6 @@ APlayerPawn::APlayerPawn()
 	Mesh->SetCollisionObjectType(ECC_Pawn);
 	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
-
-	RestoreMovement();
 }
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
@@ -162,6 +159,8 @@ void APlayerPawn::BeginPlay()
 	}
 
 	PreviousTickLocation = Mesh->GetComponentLocation();
+
+	RestoreMovement();
 }
 
 // Called every frame
