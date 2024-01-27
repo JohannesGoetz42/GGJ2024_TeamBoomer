@@ -5,6 +5,8 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/MovementSpline.h"
 #include "Player/Projectile.h"
 
 // Sets default values
@@ -32,8 +34,6 @@ APlayerPawn::APlayerPawn()
 void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	AddActorWorldOffset(BaseSpeed * DeltaTime);
 	CharacterMesh->AddRelativeLocation(MovementInput * DeltaTime);
 }
 
@@ -52,7 +52,7 @@ void APlayerPawn::Shoot()
 	if (ensure(ProjectileClass))
 	{
 		AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, CharacterMesh->GetComponentTransform(),
-		                             BaseSpeed + MovementInput);
+		                             MovementInput);
 	}
 }
 
@@ -70,4 +70,17 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis(INPUT_MOVEMENT_FWD_BWD, this, &APlayerPawn::MoveForwardBackward);
 	PlayerInputComponent->BindAction(INPUT_SHOOT, EInputEvent::IE_Pressed, this, &APlayerPawn::Shoot);
 	PlayerInputComponent->BindAction(INPUT_JUMP, EInputEvent::IE_Released, this, &APlayerPawn::StartJump);
+}
+
+void APlayerPawn::BeginPlay()
+{
+	Super::BeginPlay();
+
+	TArray<AActor*> MovementSplines;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMovementSpline::StaticClass(), MovementSplines);
+
+	if (ensure(MovementSplines.Num() == 1))
+	{
+		Cast<AMovementSpline>(MovementSplines.Last())->ControlPawn(this);
+	}
 }

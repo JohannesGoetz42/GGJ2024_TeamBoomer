@@ -11,6 +11,7 @@
 #define INPUT_SHOOT "Shoot"
 #define INPUT_JUMP "Jump"
 
+class USplineComponent;
 class AProjectile;
 class USpringArmComponent;
 class UCameraComponent;
@@ -25,27 +26,24 @@ public:
 	APlayerPawn();
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UStaticMeshComponent> CharacterMesh;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USpringArmComponent> SpringArmComponent;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UCameraComponent> PlayerCamera;
 
 	UPROPERTY(EditDefaultsOnly)
-	UStaticMeshComponent* CharacterMesh;
-	UPROPERTY(EditDefaultsOnly)
-	USpringArmComponent* SpringArmComponent;
-	UPROPERTY(EditDefaultsOnly)
-	UCameraComponent* PlayerCamera;
-	
-	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectile> ProjectileClass;
-	
+
 	UPROPERTY(EditDefaultsOnly)
-	FVector BaseSpeed = FVector(100.0f, 0.0f, 0.0f);	
-	UPROPERTY(EditDefaultsOnly)
-	float MaxMovementSpeed = 50.0f; 
+	float MaxMovementSpeed = 50.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float JumpStrength = 100.0f;
-	
+
 	FVector MovementInput;
-	
-public:	
+
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -57,4 +55,5 @@ protected:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void BeginPlay() override;
 };
