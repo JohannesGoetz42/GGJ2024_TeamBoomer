@@ -26,13 +26,13 @@ APlayerPawn::APlayerPawn()
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("Player camera");
 	PlayerCamera->AttachToComponent(SpringArmComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-	CharacterMesh = CreateDefaultSubobject<UStaticMeshComponent>("Character mesh");
-	CharacterMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>("Character mesh");
+	Mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-	CharacterMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CharacterMesh->SetCollisionObjectType(ECC_Pawn);
-	CharacterMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	CharacterMesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Mesh->SetCollisionObjectType(ECC_Pawn);
+	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	Mesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
 }
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
@@ -49,14 +49,13 @@ void APlayerPawn::AddTearFluid(int32 AddedAmount)
 void APlayerPawn::RemoveTearFluidAmount(int32 RemovedAmount)
 {
 	CurrentTearFluid -= RemovedAmount;
-	if(CurrentTearFluid <= 0)
+	if (CurrentTearFluid <= 0)
 	{
 		CurrentTearFluid = 0;
 		HandleGameOver();
 	}
-	
-	OnTearFluidAmountChanged.Broadcast();
 
+	OnTearFluidAmountChanged.Broadcast();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst - bound to overlap delegate
@@ -88,7 +87,7 @@ void APlayerPawn::Shoot()
 			ensure(PlayerController))
 		{
 			const FVector TargetLocation = PlayerController->GetCursorWorldLocation();
-			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, CharacterMesh->GetComponentLocation(),
+			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, Mesh->GetComponentLocation(),
 			                             TargetLocation, MovementInput);
 			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());
 		}
@@ -151,7 +150,7 @@ void APlayerPawn::BeginPlay()
 void APlayerPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	CharacterMesh->AddRelativeLocation(MovementInput * DeltaTime);
+	Mesh->AddRelativeLocation(MovementInput * DeltaTime);
 
 	TearDecayIntervalTime += DeltaTime;
 	if (TearDecayIntervalTime > TearFluidDecay)
