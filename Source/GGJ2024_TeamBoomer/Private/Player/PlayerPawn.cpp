@@ -41,6 +41,7 @@ APlayerPawn::APlayerPawn()
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
 {
+	CurrentScore += AddedAmount;
 	if (CurrentTearFluid == MaximumTearFluid)
 	{
 		return;
@@ -115,6 +116,20 @@ void APlayerPawn::SetRestoreMovementTimer(float Delay)
 	if (GetWorld()->GetTimerManager().GetTimerRemaining(RestoreMovementTimer) < Delay)
 	{
 		GetWorld()->GetTimerManager().SetTimer(RestoreMovementTimer, this, &APlayerPawn::RestoreMovement, Delay);
+	}
+}
+
+void APlayerPawn::HandleGameEnd()
+{
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()); ensure(PlayerController))
+	{
+		PlayerController->InputComponent->ClearActionBindings();
+		PlayerController->InputComponent->ClearAxisBindings();
+		if (ensure(HighScoreScreenClass))
+		{
+			UUserWidget* HighScoreScreen = CreateWidget(PlayerController, HighScoreScreenClass);
+			HighScoreScreen->AddToViewport();
+		}
 	}
 }
 
