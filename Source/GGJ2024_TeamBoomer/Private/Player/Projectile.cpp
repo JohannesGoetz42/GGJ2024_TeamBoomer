@@ -24,13 +24,15 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
                                           const FVector& SourceVelocity)
 {
 	AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SpawnTransform);
-	SpawnedProjectile->ProjectileMesh->AddImpulse(SourceVelocity + SpawnedProjectile->ProjectileImpulse, NAME_None,
-	                                              true);
+	const FVector Impulse = SourceVelocity + SpawnedProjectile->GetActorRotation().RotateVector(
+		SpawnedProjectile->ProjectileImpulse);
+	SpawnedProjectile->ProjectileMesh->AddImpulse(Impulse, NAME_None, true);
 	return SpawnedProjectile;
 }
 
 void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                  const FHitResult& SweepResult)
 {
 	Destroy();
 }

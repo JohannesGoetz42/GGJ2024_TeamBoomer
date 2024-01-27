@@ -17,7 +17,7 @@ public:
 
 protected:	
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* Mesh;
+	TObjectPtr<UStaticMeshComponent> Mesh;
 
 	UFUNCTION()
 	void HandleObstacleHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
