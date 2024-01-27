@@ -11,6 +11,7 @@
 #define INPUT_SHOOT "Shoot"
 #define INPUT_JUMP "Jump"
 
+class UPlayerAnimBP;
 class USplineComponent;
 class AProjectile;
 class USpringArmComponent;
@@ -27,6 +28,8 @@ struct FAnimationData
 	TObjectPtr<UAnimSequence> JumpAnimation;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAnimSequence> ShootAnimation;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAnimSequence> RollLoop;
 };
 
 UCLASS()
@@ -67,6 +70,7 @@ protected:
 
 	FTimerHandle RestoreMovementTimer;
 	FVector MovementInput;
+	FVector PreviousTickLocation;
 	float TearDecayIntervalTime;
 
 public:
@@ -78,6 +82,9 @@ public:
 	void RemoveTearFluidAmount(int32 RemovedAmount);
 
 protected:
+	UPROPERTY()
+	TObjectPtr<UPlayerAnimBP> AnimBP;
+	
 	UFUNCTION()
 	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	                   int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

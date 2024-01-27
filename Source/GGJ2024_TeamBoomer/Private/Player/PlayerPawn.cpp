@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MovementSpline.h"
+#include "Player/PlayerAnimBP.h"
 #include "Player/PlayerControllerBase.h"
 #include "Player/Projectile.h"
 
@@ -33,6 +34,8 @@ APlayerPawn::APlayerPawn()
 	Mesh->SetCollisionObjectType(ECC_Pawn);
 	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	Mesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
+
+	RestoreMovement();
 }
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
@@ -157,6 +160,8 @@ void APlayerPawn::BeginPlay()
 	{
 		Cast<AMovementSpline>(MovementSplines.Last())->ControlPawn(this);
 	}
+
+	PreviousTickLocation = Mesh->GetComponentLocation();
 }
 
 // Called every frame
@@ -171,10 +176,16 @@ void APlayerPawn::Tick(float DeltaTime)
 		TearDecayIntervalTime -= TearFluidDecay;
 		RemoveTearFluidAmount(1);
 	}
+
+	Mesh->SetPlayRate((Mesh->GetComponentLocation().X - PreviousTickLocation.X) * DeltaTime);
+	PreviousTickLocation = Mesh->GetComponentLocation();
 }
 
-// ReSharper disable once CppMemberFunctionMayBeStatic - bound to timer
+// ReSharper disable once CppMemberFunctionMayBeConst
 void APlayerPawn::RestoreMovement()
 {
-	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, TEXT("Implement APlayerPawn::RestoreMovement!"));
+	if (ensure(AnimationData.RollLoop))
+	{
+		Mesh->PlayAnimation(AnimationData.RollLoop, true);
+	}
 }
