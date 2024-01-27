@@ -3,7 +3,10 @@
 
 #include "Player/PlayerPawn.h"
 
+#include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
+#include "Engine/TriggerBox.h"
+#include "Environment/BasicObstacle.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MovementSpline.h"
@@ -19,7 +22,8 @@ APlayerPawn::APlayerPawn()
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Camera boom");
 	SpringArmComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-
+	SpringArmComponent->bDoCollisionTest = false;
+	
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>("Player camera");
 	PlayerCamera->AttachToComponent(SpringArmComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -29,6 +33,7 @@ APlayerPawn::APlayerPawn()
 	CharacterMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CharacterMesh->SetCollisionObjectType(ECC_Pawn);
 	CharacterMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	CharacterMesh->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
 }
 
 // Called every frame
@@ -47,6 +52,16 @@ void APlayerPawn::AddTearFluid(int32 AddedAmount)
 
 	CurrentTearFluid = FMath::Min(MaximumTearFluid, CurrentTearFluid + AddedAmount);
 	OnTearFluidAmountChanged.Broadcast();
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst - bound to overlap delegate
+void APlayerPawn::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA<ATriggerBox>())
+	{
+		HandleGameOver();
+	}
 }
 
 void APlayerPawn::MoveLeftRight(float AxisValue)
@@ -75,9 +90,32 @@ void APlayerPawn::Shoot()
 	}
 }
 
+// ReSharper disable once CppMemberFunctionMayBeStatic - bound to input
 void APlayerPawn::StartJump()
 {
 	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, TEXT("Implement APlayerPawn::StartJump!"));
+}
+
+void APlayerPawn::HandleGameOver() const
+{
+	TArray<AActor*> MovementSplines;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMovementSpline::StaticClass(), MovementSplines);
+
+	if (ensure(MovementSplines.Num() == 1))
+	{
+		MovementSplines.Last()->SetActorTickEnabled(false);
+	}
+
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()); ensure(PlayerController))
+	{
+		PlayerController->InputComponent->ClearActionBindings();
+		PlayerController->InputComponent->ClearAxisBindings();
+		if (ensure(GameOverScreenClass))
+		{
+			UUserWidget* GameOverScreen = CreateWidget(PlayerController, GameOverScreenClass);
+			GameOverScreen->AddToViewport();
+		}
+	}
 }
 
 // Called to bind functionality to input
