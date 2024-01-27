@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/MovementSpline.h"
+#include "Player/PlayerControllerBase.h"
 #include "Player/Projectile.h"
 
 // Sets default values
@@ -62,10 +63,15 @@ void APlayerPawn::Shoot()
 {
 	if (ensure(ProjectileClass) && ProjectileClass.GetDefaultObject()->GetTearFluidCost() <= CurrentTearFluid)
 	{
-		AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, CharacterMesh->GetComponentTransform(),
-		                             MovementInput);
-		CurrentTearFluid -= ProjectileClass.GetDefaultObject()->GetTearFluidCost();
-		OnTearFluidAmountChanged.Broadcast();
+		if (const APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController());
+			ensure(PlayerController))
+		{
+			const FVector TargetLocation = PlayerController->GetCursorWorldLocation();
+			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, CharacterMesh->GetComponentLocation(),
+			                             TargetLocation, MovementInput);
+			CurrentTearFluid -= ProjectileClass.GetDefaultObject()->GetTearFluidCost();
+			OnTearFluidAmountChanged.Broadcast();
+		}
 	}
 }
 

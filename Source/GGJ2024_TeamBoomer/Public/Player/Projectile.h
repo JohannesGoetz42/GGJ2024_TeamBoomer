@@ -16,7 +16,8 @@ public:
 	AProjectile();
 
 	static AProjectile* SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, APawn* Instigator,
-	                                    const FTransform& SpawnTransform, const FVector& SourceVelocity);
+	                                    const FVector& SourceLocation, const FVector& TargetLocation,
+	                                    const FVector& SourceVelocity);
 	int32 GetTearFluidCost() const { return TearFluidCost; }
 
 protected:
