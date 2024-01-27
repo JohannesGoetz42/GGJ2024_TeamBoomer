@@ -3,4 +3,7 @@
 .idea/
 Intermediate/
 Saved/
-Build
+*.pdb
+*.lib
+*.exe
+*.exp
