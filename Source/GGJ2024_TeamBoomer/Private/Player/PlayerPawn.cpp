@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/AudioLayerManagerComponent.h"
 #include "Player/MovementSpline.h"
 #include "Player/Projectile.h"
 
@@ -28,6 +29,8 @@ APlayerPawn::APlayerPawn()
 	CharacterMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CharacterMesh->SetCollisionObjectType(ECC_Pawn);
 	CharacterMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+
+	AudioLayerManager = CreateDefaultSubobject<UAudioLayerManagerComponent>("Audio layer manager");
 }
 
 // Called every frame

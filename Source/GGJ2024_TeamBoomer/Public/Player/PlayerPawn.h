@@ -11,6 +11,7 @@
 #define INPUT_SHOOT "Shoot"
 #define INPUT_JUMP "Jump"
 
+class UAudioLayerManagerComponent;
 class USplineComponent;
 class AProjectile;
 class USpringArmComponent;
@@ -34,6 +35,8 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> PlayerCamera;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAudioLayerManagerComponent> AudioLayerManager;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 MaximumTearFluid = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

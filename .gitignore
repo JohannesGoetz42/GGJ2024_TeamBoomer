@@ -3,6 +3,7 @@
 .idea/
 Intermediate/
 Saved/
+PLACEHOLDERS/
 *.pdb
 *.lib
 *.exe

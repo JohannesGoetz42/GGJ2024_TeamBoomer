@@ -14,11 +14,13 @@ class GGJ2024_TEAMBOOMER_API UAudioLayerManagerComponent : public UAudioComponen
 {
 	GENERATED_BODY()
 
+public:
+	UFUNCTION(BlueprintCallable)
+	void AddAudioLayer(USoundWave* SoundAsset);
+	UFUNCTION(BlueprintCallable)
+	void RemoveAudioLayer(USoundWave* SoundAsset);
+
 protected:
 	UPROPERTY()
-	
-	UPROPERTY()
-	TObjectPtr<UAudioLayerComponent> MainTrack;
-	UPROPERTY()
-	TArray<TObjectPtr<UAudioLayerComponent>> CurrentLayers;
+	TMap<TObjectPtr<USoundWave>, TObjectPtr<UAudioLayerComponent>> CurrentLayers;
 };
