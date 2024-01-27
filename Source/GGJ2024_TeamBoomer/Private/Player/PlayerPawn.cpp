@@ -37,6 +37,17 @@ void APlayerPawn::Tick(float DeltaTime)
 	CharacterMesh->AddRelativeLocation(MovementInput * DeltaTime);
 }
 
+void APlayerPawn::AddTearFluid(int32 AddedAmount)
+{
+	if (CurrentTearFluid == MaximumTearFluid)
+	{
+		return;
+	}
+
+	CurrentTearFluid = FMath::Min(MaximumTearFluid, CurrentTearFluid + AddedAmount);
+	OnTearFluidAmountChanged.Broadcast();
+}
+
 void APlayerPawn::MoveLeftRight(float AxisValue)
 {
 	MovementInput.Y = AxisValue * MaxMovementSpeed;
@@ -49,10 +60,12 @@ void APlayerPawn::MoveForwardBackward(float AxisValue)
 
 void APlayerPawn::Shoot()
 {
-	if (ensure(ProjectileClass))
+	if (ensure(ProjectileClass) && ProjectileClass.GetDefaultObject()->GetTearFluidCost() <= CurrentTearFluid)
 	{
-		AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, CharacterMesh->GetComponentTransform(),
+		AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, CharacterMesh->GetComponentTransform(),
 		                             MovementInput);
+		CurrentTearFluid -= ProjectileClass.GetDefaultObject()->GetTearFluidCost();
+		OnTearFluidAmountChanged.Broadcast();
 	}
 }
 

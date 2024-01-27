@@ -16,6 +16,8 @@ class AProjectile;
 class USpringArmComponent;
 class UCameraComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTearFluidAmountChangedDelegate);
+
 UCLASS()
 class GGJ2024_TEAMBOOMER_API APlayerPawn : public APawn
 {
@@ -32,20 +34,26 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> PlayerCamera;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 MaximumTearFluid = 100;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 CurrentTearFluid = 10;
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AProjectile> ProjectileClass;
-
 	UPROPERTY(EditDefaultsOnly)
 	float MaxMovementSpeed = 50.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float JumpStrength = 100.0f;
+	UPROPERTY(BlueprintAssignable)
+	FTearFluidAmountChangedDelegate OnTearFluidAmountChanged;
 
 	FVector MovementInput;
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void AddTearFluid(int32 AddedAmount);
 
 protected:
 	void MoveLeftRight(float AxisValue);

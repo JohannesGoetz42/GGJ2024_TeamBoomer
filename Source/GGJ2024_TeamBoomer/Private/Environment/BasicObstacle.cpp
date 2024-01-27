@@ -3,6 +3,8 @@
 
 #include "Environment/BasicObstacle.h"
 
+#include "Player/PlayerPawn.h"
+
 // Sets default values
 ABasicObstacle::ABasicObstacle()
 {
@@ -20,6 +22,17 @@ void ABasicObstacle::HandleObstacleHit(UPrimitiveComponent* OverlappedComponent,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                        const FHitResult& SweepResult)
 {
+	APlayerPawn* Player = Cast<APlayerPawn>(OtherActor);
+	if (!Player)
+	{
+		Player = Cast<APlayerPawn>(OtherActor->GetInstigator());
+	}
+
+	if(ensure(Player))
+	{
+		Player->AddTearFluid(TearFluidReward);
+	}
+	
 	Destroy();
 }
 

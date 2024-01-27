@@ -19,11 +19,12 @@ AProjectile::AProjectile()
 	ProjectileMesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleCollision);
 }
 
-AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass,
-                                          const FTransform& SpawnTransform,
-                                          const FVector& SourceVelocity)
+AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, APawn* Instigator,
+                                          const FTransform& SpawnTransform, const FVector& SourceVelocity)
 {
-	AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SpawnTransform);
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = Instigator;
+	AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SpawnTransform, SpawnParameters);
 	const FVector Impulse = SourceVelocity + SpawnedProjectile->GetActorRotation().RotateVector(
 		SpawnedProjectile->ProjectileImpulse);
 	SpawnedProjectile->ProjectileMesh->AddImpulse(Impulse, NAME_None, true);

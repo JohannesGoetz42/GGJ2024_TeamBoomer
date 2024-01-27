@@ -15,14 +15,17 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
-	static AProjectile* SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass,
+	static AProjectile* SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, APawn* Instigator,
 	                                    const FTransform& SpawnTransform, const FVector& SourceVelocity);
+	int32 GetTearFluidCost() const { return TearFluidCost; }
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	FVector ProjectileImpulse = FVector(1500.0f, 0.0f, 500.0f);
 	UPROPERTY(EditDefaultsOnly)
 	float MaxLifetime = 5.0f;
+	UPROPERTY(EditDefaultsOnly)
+	int32 TearFluidCost = 10;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> ProjectileMesh;
 
