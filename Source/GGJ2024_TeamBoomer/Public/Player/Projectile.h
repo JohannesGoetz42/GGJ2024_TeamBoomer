@@ -10,25 +10,20 @@ UCLASS()
 class GGJ2024_TEAMBOOMER_API AProjectile : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:	
 	// Sets default values for this actor's properties
 	AProjectile();
 
+	static AProjectile* SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, const FTransform& SpawnTransform, const FVector& SourceVelocity);
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	float ProjectileSpeed = 500.0f;
+	FVector ProjectileImpulse = FVector(1500.0f, 0.0f, 500.0f);
 	UPROPERTY(EditDefaultsOnly)
 	float MaxLifetime = 5.0f;
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* ProjectileMesh;
 
 	float CurrentLifeTime;
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

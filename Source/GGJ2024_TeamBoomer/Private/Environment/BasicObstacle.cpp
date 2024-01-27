@@ -20,7 +20,6 @@ void ABasicObstacle::HandleObstacleHit(UPrimitiveComponent* OverlappedComponent,
                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                        const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Obstacle hit: %s"), *GetName()));
 	Destroy();
 }
 

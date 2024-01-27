@@ -57,11 +57,11 @@ void APlayerPawn::Shoot()
 {
 	if (ensure(ProjectileClass))
 	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Instigator = this;
-		SpawnParameters.Owner = this;
-		GetWorld()->SpawnActor<AProjectile>(ProjectileClass, CharacterMesh->GetComponentTransform(), SpawnParameters);
+		AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, CharacterMesh->GetComponentTransform(),
+		                             BaseSpeed + MovementInput);
 	}
+}
+
 }
 
 // Called to bind functionality to input
