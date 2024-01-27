@@ -28,12 +28,6 @@ APlayerPawn::APlayerPawn()
 	CharacterMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 }
 
-// Called when the game starts or when spawned
-void APlayerPawn::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 // Called every frame
 void APlayerPawn::Tick(float DeltaTime)
 {
@@ -62,6 +56,9 @@ void APlayerPawn::Shoot()
 	}
 }
 
+void APlayerPawn::StartJump()
+{
+	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, TEXT("Implement APlayerPawn::StartJump!"));
 }
 
 // Called to bind functionality to input
@@ -72,4 +69,5 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis(INPUT_MOVEMENT_LEFT_RIGHT, this, &APlayerPawn::MoveLeftRight);
 	PlayerInputComponent->BindAxis(INPUT_MOVEMENT_FWD_BWD, this, &APlayerPawn::MoveForwardBackward);
 	PlayerInputComponent->BindAction(INPUT_SHOOT, EInputEvent::IE_Pressed, this, &APlayerPawn::Shoot);
+	PlayerInputComponent->BindAction(INPUT_JUMP, EInputEvent::IE_Released, this, &APlayerPawn::StartJump);
 }

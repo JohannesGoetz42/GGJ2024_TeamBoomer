@@ -9,6 +9,7 @@
 #define INPUT_MOVEMENT_FWD_BWD "MovementForwardBackward"
 #define INPUT_MOVEMENT_LEFT_RIGHT "MovementLeftRight"
 #define INPUT_SHOOT "Shoot"
+#define INPUT_JUMP "Jump"
 
 class AProjectile;
 class USpringArmComponent;
@@ -39,12 +40,11 @@ protected:
 	FVector BaseSpeed = FVector(100.0f, 0.0f, 0.0f);	
 	UPROPERTY(EditDefaultsOnly)
 	float MaxMovementSpeed = 50.0f; 
+	UPROPERTY(EditDefaultsOnly)
+	float JumpStrength = 100.0f;
 	
 	FVector MovementInput;
 	
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -53,7 +53,8 @@ protected:
 	void MoveLeftRight(float AxisValue);
 	void MoveForwardBackward(float AxisValue);
 	void Shoot();
-	
+	void StartJump();
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };
