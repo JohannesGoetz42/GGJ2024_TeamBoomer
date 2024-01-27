@@ -90,14 +90,27 @@ void APlayerPawn::Shoot()
 			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, Mesh->GetComponentLocation(),
 			                             TargetLocation, MovementInput);
 			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());
+
+			PlayAnimation(AnimationData.ShootAnimation);
 		}
 	}
 }
 
-// ReSharper disable once CppMemberFunctionMayBeStatic - bound to input
-void APlayerPawn::StartJump()
+void APlayerPawn::PlayAnimation(UAnimSequence* Animation)
 {
-	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, TEXT("Implement APlayerPawn::StartJump!"));
+	if (ensure(Animation))
+	{
+		Mesh->PlayAnimation(Animation, false);
+		SetRestoreMovementTimer(Animation->GetPlayLength());
+	}
+}
+
+void APlayerPawn::SetRestoreMovementTimer(float Delay)
+{
+	if (GetWorld()->GetTimerManager().GetTimerRemaining(RestoreMovementTimer) < Delay)
+	{
+		GetWorld()->GetTimerManager().SetTimer(RestoreMovementTimer, this, &APlayerPawn::RestoreMovement, Delay);
+	}
 }
 
 void APlayerPawn::HandleGameOver() const
@@ -158,4 +171,10 @@ void APlayerPawn::Tick(float DeltaTime)
 		TearDecayIntervalTime -= TearFluidDecay;
 		RemoveTearFluidAmount(1);
 	}
+}
+
+// ReSharper disable once CppMemberFunctionMayBeStatic - bound to timer
+void APlayerPawn::RestoreMovement()
+{
+	GEngine->AddOnScreenDebugMessage(0, 2.0f, FColor::Red, TEXT("Implement APlayerPawn::RestoreMovement!"));
 }

@@ -18,6 +18,17 @@ class UCameraComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTearFluidAmountChangedDelegate);
 
+USTRUCT()
+struct FAnimationData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAnimSequence> JumpAnimation;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAnimSequence> ShootAnimation;
+};
+
 UCLASS()
 class GGJ2024_TEAMBOOMER_API APlayerPawn : public APawn
 {
@@ -34,6 +45,8 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> PlayerCamera;
+	UPROPERTY(EditDefaultsOnly)
+	FAnimationData AnimationData;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 MaximumTearFluid = 100;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -52,6 +65,7 @@ protected:
 	UPROPERTY(BlueprintAssignable)
 	FTearFluidAmountChangedDelegate OnTearFluidAmountChanged;
 
+	FTimerHandle RestoreMovementTimer;
 	FVector MovementInput;
 	float TearDecayIntervalTime;
 
@@ -59,17 +73,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void RestoreMovement();
 	void AddTearFluid(int32 AddedAmount);
 	void RemoveTearFluidAmount(int32 RemovedAmount);
 
 protected:
 	UFUNCTION()
-	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	                   int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	void MoveLeftRight(float AxisValue);
 	void MoveForwardBackward(float AxisValue);
 	void Shoot();
-	void StartJump();
+	void StartJump() { PlayAnimation(AnimationData.JumpAnimation); }
+	void PlayAnimation(UAnimSequence* Animation);
+	void SetRestoreMovementTimer(float Delay);
 	void HandleGameOver() const;
 
 	// Called to bind functionality to input

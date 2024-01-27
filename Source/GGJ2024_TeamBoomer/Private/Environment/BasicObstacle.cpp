@@ -13,7 +13,7 @@ ABasicObstacle::ABasicObstacle()
 	Mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 	// collision
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetCollisionObjectType(ECC_Destructible);
 	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 }
@@ -28,12 +28,14 @@ void ABasicObstacle::HandleObstacleHit(UPrimitiveComponent* OverlappedComponent,
 		Player = Cast<APlayerPawn>(OtherActor->GetInstigator());
 	}
 
-	if(ensure(Player))
+	if (ensure(Player))
 	{
 		Player->AddTearFluid(TearFluidReward);
 	}
-	
-	Destroy();
+
+	Mesh->SetSimulatePhysics(true);
+	const FVector Impulse = OtherComp->GetMass() * 0.1f * OtherComp->GetPhysicsLinearVelocity();
+	Mesh->AddImpulseAtLocation(Impulse, SweepResult.Location);
 }
 
 // Called when the game starts or when spawned
