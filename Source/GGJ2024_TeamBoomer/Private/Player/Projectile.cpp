@@ -3,6 +3,9 @@
 
 #include "Player/Projectile.h"
 
+#include "Components/BoxComponent.h"
+#include "Player/PlayerPawn.h"
+
 // Sets default values
 AProjectile::AProjectile()
 {
@@ -10,16 +13,24 @@ AProjectile::AProjectile()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>("Root component");
+
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>("Projectile mesh");
 	ProjectileMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	ProjectileMesh->SetCollisionObjectType(ECC_Pawn);
 	ProjectileMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
 	ProjectileMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-
+	ProjectileMesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleCollision);
 	ProjectileMesh->SetSimulatePhysics(true);
 	ProjectileMesh->SetEnableGravity(true);
-	ProjectileMesh->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleCollision);
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>("Collision box");
+	CollisionBox->AttachToComponent(ProjectileMesh, FAttachmentTransformRules::KeepRelativeTransform);
+	CollisionBox->SetCollisionObjectType(ECC_WorldDynamic);
+	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+	CollisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::HandleCollision);
 }
 
 AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, APawn* Instigator,
@@ -31,7 +42,6 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
 		return nullptr;
 	}
 
-	DrawDebugLine(World, SourceLocation, TargetLocation, FColor::Yellow, true);
 	const AProjectile* DefaultProjectile = ProjectileClass.GetDefaultObject();
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = Instigator;
@@ -63,7 +73,7 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
 
 		const float G = -World->GetGravityZ();
 		const float Y = TargetLocation.Z - SourceLocation.Z;
-		
+
 		const float V = DefaultProjectile->ProjectileSpeed;
 		const float RootPart = FMath::Sqrt(FMath::Pow(V, 4) - G * (G * FMath::Square(X) + 2 * Y * FMath::Square(V)));
 		const float Angle1 = FMath::RadiansToDegrees(FMath::Atan((FMath::Square(V) - RootPart) / (G * X)));
@@ -76,6 +86,11 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
 	}
 
 	AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SpawnTransform, SpawnParameters);
+	// if spawned by pawn, disable the collision box
+	if (Instigator)
+	{
+		SpawnedProjectile->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 	SpawnedProjectile->ProjectileMesh->AddImpulse(Impulse, NAME_None, true);
 	return SpawnedProjectile;
 }
@@ -89,7 +104,14 @@ void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AAct
 	{
 		return;
 	}
-	
+	if (OverlappedComponent == CollisionBox)
+	{
+		if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
+		{
+			Player->ReceiveDamage(TearFluidCost);
+		}
+	}
+
 	Destroy();
 }
 

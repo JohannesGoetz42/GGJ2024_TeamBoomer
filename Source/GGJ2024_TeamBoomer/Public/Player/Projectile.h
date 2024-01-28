@@ -7,6 +7,8 @@
 #include "Interfaces/AppliesPhysicsImpulse.h"
 #include "Projectile.generated.h"
 
+class UBoxComponent;
+
 UCLASS(Abstract)
 class GGJ2024_TEAMBOOMER_API AProjectile : public AActor, public IAppliesPhysicsImpulse
 {
@@ -32,6 +34,8 @@ protected:
 	int32 TearFluidCost = 10;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UStaticMeshComponent> ProjectileMesh;
+	UPROPERTY(EditDefaultsOnly)
+	UBoxComponent* CollisionBox;
 
 	float CurrentLifeTime;
 	FVector PreviousTickLocation;

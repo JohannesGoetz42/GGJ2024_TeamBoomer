@@ -63,6 +63,12 @@ void APlayerPawn::RemoveTearFluidAmount(int32 RemovedAmount)
 	OnTearFluidAmountChanged.Broadcast();
 }
 
+void APlayerPawn::ReceiveDamage(int32 DamageAmount)
+{
+	CurrentScore -= DamageAmount;
+	RemoveTearFluidAmount(DamageAmount);
+}
+
 // ReSharper disable once CppMemberFunctionMayBeConst - bound to overlap delegate
 void APlayerPawn::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
@@ -142,8 +148,13 @@ void APlayerPawn::HandleGameEnd()
 	SetActorTickEnabled(false);
 }
 
-void APlayerPawn::HandleGameOver() const
+void APlayerPawn::HandleGameOver()
 {
+	if (bIsGameOver)
+	{
+		return;
+	}
+
 	TArray<AActor*> MovementSplines;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMovementSpline::StaticClass(), MovementSplines);
 
@@ -162,6 +173,9 @@ void APlayerPawn::HandleGameOver() const
 			GameOverScreen->AddToViewport();
 		}
 	}
+
+	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	bIsGameOver = true;
 }
 
 FVector APlayerPawn::GetImpulse() const
