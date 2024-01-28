@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Interfaces/AppliesPhysicsImpulse.h"
 #include "PlayerPawn.generated.h"
@@ -29,7 +30,8 @@ enum class EPlayerPawnSoundType : uint8
 	PPST_TakeDamage UMETA(DisplayName = "Take damage"),
 	PPST_Jump UMETA(DisplayName = "Jump"),
 	PPST_JumpEnd UMETA(DisplayName = "Jump end"),
-	PPST_FillTear UMETA(DisplayName = "Fill tear")
+	PPST_FillTear UMETA(DisplayName = "Fill tear"),
+	PPST_Laugh UMETA(DisplayName = "Laugh")
 };
 
 USTRUCT()
@@ -73,6 +75,8 @@ struct FPlayerSoundData
 			return &JumpEndSounds;
 		case EPlayerPawnSoundType::PPST_FillTear:
 			return &TearFill;
+		case EPlayerPawnSoundType::PPST_Laugh:
+			return &Laugh;
 		}
 		return nullptr;
 	}
@@ -101,6 +105,8 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> PlayerCamera;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAudioComponent> RollingMovementSound;
 	UPROPERTY(EditDefaultsOnly)
 	FAnimationData AnimationData;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -151,7 +157,12 @@ protected:
 	void MoveLeftRight(float AxisValue);
 	void MoveForwardBackward(float AxisValue);
 	void Shoot();
-	void StartJump() { PlayAnimation(AnimationData.JumpAnimation); }
+	void StartJump()
+	{
+		PlayAnimation(AnimationData.JumpAnimation);
+		PlaySound(EPlayerPawnSoundType::PPST_Jump);
+		RollingMovementSound->SetVolumeMultiplier(0.0f);
+	}
 	void PlayAnimation(UAnimSequence* Animation, float PlaybackSpeed = 1.0f);
 	void SetRestoreMovementTimer(float Delay);
 	void HandleGameOver();

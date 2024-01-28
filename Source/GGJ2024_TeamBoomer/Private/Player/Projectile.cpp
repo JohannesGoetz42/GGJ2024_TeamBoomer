@@ -130,6 +130,12 @@ void AProjectile::PlaySound(EProjectileSoundType SoundType) const
 	if (const TArray<TObjectPtr<USoundWave>>* SelectedSounds = SoundData.GetSoundsByType(SoundType))
 	{
 		const TArray<TObjectPtr<USoundWave>>& Sounds = *SelectedSounds;
+
+		if (Sounds.IsEmpty())
+		{
+			return;
+		}
+
 		const int32 SoundIndex = FMath::RandRange(0, Sounds.Num() - 1);;
 		if (USoundWave* Sound = Sounds[SoundIndex])
 		{

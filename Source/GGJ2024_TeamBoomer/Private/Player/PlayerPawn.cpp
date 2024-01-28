@@ -5,6 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Engine/TriggerBox.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -37,6 +38,9 @@ APlayerPawn::APlayerPawn()
 	CollisionSphere->SetCollisionObjectType(ECC_Pawn);
 	CollisionSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::HandleOverlap);
+
+	RollingMovementSound = CreateDefaultSubobject<UAudioComponent>("Movement sound");
+	RollingMovementSound->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
@@ -147,11 +151,13 @@ void APlayerPawn::HandleGameEnd()
 		}
 	}
 
+	RollingMovementSound->Stop();
 	SetActorTickEnabled(false);
 }
 
 void APlayerPawn::HandleGameOver()
 {
+	RollingMovementSound->Stop();
 	if (bIsGameOver)
 	{
 		return;
@@ -218,6 +224,12 @@ void APlayerPawn::PlaySound(EPlayerPawnSoundType SoundType) const
 	if (const TArray<TObjectPtr<USoundWave>>* SelectedSounds = SoundData.GetSoundsByType(SoundType))
 	{
 		const TArray<TObjectPtr<USoundWave>>& Sounds = *SelectedSounds;
+
+		if (Sounds.IsEmpty())
+		{
+			return;
+		}
+
 		const int32 SoundIndex = FMath::RandRange(0, Sounds.Num() - 1);;
 		if (USoundWave* Sound = Sounds[SoundIndex])
 		{
@@ -255,4 +267,7 @@ void APlayerPawn::RestoreMovement()
 	{
 		Mesh->PlayAnimation(AnimationData.RollLoop, true);
 	}
+
+	PlaySound(EPlayerPawnSoundType::PPST_JumpEnd);
+	RollingMovementSound->SetVolumeMultiplier(1.0f);
 }
