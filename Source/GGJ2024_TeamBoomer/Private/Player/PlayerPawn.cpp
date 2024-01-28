@@ -94,11 +94,11 @@ void APlayerPawn::Shoot()
 			FVector TargetLocation = PlayerController->GetCursorWorldLocation();
 
 			// don't allow shooting back
-			if(TargetLocation.X < Mesh->GetComponentLocation().X)
+			if (TargetLocation.X < Mesh->GetComponentLocation().X)
 			{
 				TargetLocation = Mesh->GetComponentLocation();
 			}
-			
+
 			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, Mesh->GetComponentLocation(),
 			                             TargetLocation, MovementInput);
 			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());
@@ -138,6 +138,8 @@ void APlayerPawn::HandleGameEnd()
 			HighScoreScreen->AddToViewport();
 		}
 	}
+	
+	SetActorTickEnabled(false);
 }
 
 void APlayerPawn::HandleGameOver() const
