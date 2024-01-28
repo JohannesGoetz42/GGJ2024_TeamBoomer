@@ -8,3 +8,4 @@ Content/PLACEHOLDERS
 *.lib
 *.exe
 *.exp
+Packaged/
