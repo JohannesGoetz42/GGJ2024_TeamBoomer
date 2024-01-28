@@ -107,7 +107,7 @@ protected:
 	TObjectPtr<UCameraComponent> PlayerCamera;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAudioComponent> RollingMovementSound;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAudioComponent> BackgroundMusicComp;
 	UPROPERTY(EditDefaultsOnly)
 	FAnimationData AnimationData;
