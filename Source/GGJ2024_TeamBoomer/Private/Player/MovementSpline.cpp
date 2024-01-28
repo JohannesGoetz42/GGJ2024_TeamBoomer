@@ -14,7 +14,9 @@ AMovementSpline::AMovementSpline()
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	SplineComponent = CreateDefaultSubobject<USplineComponent>("Movement Spline");
+#if WITH_EDITOR
 	SplineComponent->EditorUnselectedSplineSegmentColor = FColor::Green;
+#endif	
 }
 
 void AMovementSpline::ControlPawn(APlayerPawn* PawnToControl)
