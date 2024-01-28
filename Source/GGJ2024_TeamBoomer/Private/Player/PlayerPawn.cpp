@@ -41,6 +41,8 @@ APlayerPawn::APlayerPawn()
 
 	RollingMovementSound = CreateDefaultSubobject<UAudioComponent>("Movement sound");
 	RollingMovementSound->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
+	BackgroundMusicComp = CreateDefaultSubobject<UAudioComponent>("Background music");
+	BackgroundMusicComp->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void APlayerPawn::AddTearFluid(int32 AddedAmount)
@@ -152,12 +154,14 @@ void APlayerPawn::HandleGameEnd()
 	}
 
 	RollingMovementSound->Stop();
+	BackgroundMusicComp->Stop();
 	SetActorTickEnabled(false);
 }
 
 void APlayerPawn::HandleGameOver()
 {
 	RollingMovementSound->Stop();
+	BackgroundMusicComp->Stop();
 	if (bIsGameOver)
 	{
 		return;

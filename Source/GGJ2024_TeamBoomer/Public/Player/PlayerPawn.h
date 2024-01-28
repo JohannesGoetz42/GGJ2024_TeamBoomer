@@ -108,6 +108,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAudioComponent> RollingMovementSound;
 	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAudioComponent> BackgroundMusicComp;
+	UPROPERTY(EditDefaultsOnly)
 	FAnimationData AnimationData;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 MaximumTearFluid = 100;
