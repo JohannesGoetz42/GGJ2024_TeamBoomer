@@ -54,6 +54,7 @@ void ATrap::TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 			{
 				GetWorld()->GetTimerManager().SetTimer(TriggerTimer, this, &ATrap::ShootProjectile, TriggerInterval,
 				                                       true);
+				TriggerBox->OnComponentEndOverlap.AddDynamic(this, &ATrap::EndTrigger);
 			}
 		}
 		break;
@@ -66,6 +67,7 @@ void ATrap::TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 			{
 				GetWorld()->GetTimerManager().SetTimer(TriggerTimer, this, &ATrap::ShootProjectile, TriggerInterval,
 				                                       true);
+				TriggerBox->OnComponentEndOverlap.AddDynamic(this, &ATrap::EndTrigger);
 			}
 		}
 		break;;

@@ -51,9 +51,16 @@ protected:
 
 	FVector TargetLocation;
 	FTimerHandle TriggerTimer;
-	
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ExecuteTrap();
+	UFUNCTION()
+	void EndTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	                int32 OtherBodyIndex)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TriggerTimer);
+	}
+
 	UFUNCTION()
 	void TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
