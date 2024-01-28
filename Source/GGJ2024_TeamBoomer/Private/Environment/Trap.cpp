@@ -40,7 +40,6 @@ void ATrap::TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 		return;
 	}
 
-	FVector TargetLocation;
 	switch (TrapType)
 	{
 	case TT_None:
@@ -50,16 +49,24 @@ void ATrap::TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 		if (ensure(SpawnedProjectile))
 		{
 			TargetLocation = AimArrow->GetComponentLocation() + AimArrow->GetForwardVector() * Distance;
-			AProjectile::SpawnProjectile(GetWorld(), SpawnedProjectile, nullptr, this, AimArrow->GetComponentLocation(),
-			                             TargetLocation);
+			ShootProjectile();
+			if (TriggerInterval != 0.0f)
+			{
+				GetWorld()->GetTimerManager().SetTimer(TriggerTimer, this, &ATrap::ShootProjectile, TriggerInterval,
+				                                       true);
+			}
 		}
 		break;
 	case TT_Projectile_Aimed:
 		if (ensure(SpawnedProjectile))
 		{
 			TargetLocation = OverlappedComponent->GetComponentLocation();
-			AProjectile::SpawnProjectile(GetWorld(), SpawnedProjectile, nullptr, this, AimArrow->GetComponentLocation(),
-			                             TargetLocation);
+			ShootProjectile();
+			if (TriggerInterval != 0.0f)
+			{
+				GetWorld()->GetTimerManager().SetTimer(TriggerTimer, this, &ATrap::ShootProjectile, TriggerInterval,
+				                                       true);
+			}
 		}
 		break;;
 	case TT_Projectile_HandGrab:
@@ -68,6 +75,18 @@ void ATrap::TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 	}
 
 	TriggerSound->SetPaused(false);
+}
+
+void ATrap::ShootProjectile()
+{
+	if (TrapType != ETrapType::TT_Projectile_Forward)
+	{
+		ensure(false); // implement this case!
+		return;
+	}
+
+	AProjectile::SpawnProjectile(GetWorld(), SpawnedProjectile, nullptr, this, AimArrow->GetComponentLocation(),
+	                             TargetLocation);
 }
 
 // Called when the game starts or when spawned

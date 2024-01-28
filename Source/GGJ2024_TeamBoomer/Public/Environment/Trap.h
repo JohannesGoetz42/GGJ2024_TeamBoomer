@@ -38,6 +38,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	/** The aim distance (Projectile forward) / MovementDistance (Hand grab) */
 	float Distance = 100.0f;
+	UPROPERTY(EditAnywhere)
+	/** How often the trap is triggered (only once if zero) */
+	float TriggerInterval = 0.0f;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> Mesh;
@@ -46,12 +49,17 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAudioComponent> TriggerSound;
 
+	FVector TargetLocation;
+	FTimerHandle TriggerTimer;
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void ExecuteTrap();
 	UFUNCTION()
 	void TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 	                 const FHitResult& SweepResult);
+	UFUNCTION()
+	void ShootProjectile();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
