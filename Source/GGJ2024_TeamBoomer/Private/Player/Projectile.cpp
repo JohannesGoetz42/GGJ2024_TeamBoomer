@@ -106,6 +106,9 @@ void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AAct
 	{
 		return;
 	}
+
+	PlaySound(EProjectileSoundType::PST_Hit);
+	
 	if (OverlappedComponent == CollisionBox)
 	{
 		if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
