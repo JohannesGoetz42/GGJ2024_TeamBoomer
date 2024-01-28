@@ -17,6 +17,7 @@ ABasicObstacle::ABasicObstacle()
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Mesh->SetCollisionObjectType(ECC_Destructible);
 	Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	Mesh->SetSimulatePhysics(true);
 }
 
 void ABasicObstacle::HandleObstacleHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -34,7 +35,6 @@ void ABasicObstacle::HandleObstacleHit(UPrimitiveComponent* OverlappedComponent,
 		Player->AddTearFluid(TearFluidReward);
 	}
 
-	Mesh->SetSimulatePhysics(true);
 	if (const IAppliesPhysicsImpulse* ImpulseSource = Cast<IAppliesPhysicsImpulse>(OtherActor); ensure(ImpulseSource))
 	{
 		Mesh->AddImpulseAtLocation(ImpulseSource->GetImpulse(), SweepResult.Location);
