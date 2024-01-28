@@ -24,7 +24,7 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	FVector ProjectileImpulse = FVector(1500.0f, 0.0f, 500.0f);
+	float ProjectileSpeed = 1500.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float MaxLifetime = 5.0f;
 	UPROPERTY(EditDefaultsOnly)

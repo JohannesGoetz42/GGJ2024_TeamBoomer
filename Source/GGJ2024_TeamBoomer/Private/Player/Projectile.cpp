@@ -26,18 +26,53 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
                                           const FVector& SourceLocation, const FVector& TargetLocation,
                                           const FVector& SourceVelocity)
 {
+	if (!ensure(ProjectileClass))
+	{
+		return nullptr;
+	}
+
+	const AProjectile* DefaultProjectile = ProjectileClass.GetDefaultObject();
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = Instigator;
 
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(SourceLocation);
-	FVector Direction = TargetLocation - SourceLocation;
-	Direction.Z = SourceLocation.Z;
-	SpawnTransform.SetRotation(FQuat::FindBetweenVectors(FVector::ForwardVector, Direction));
+
+	FVector Impulse;
+	if (TargetLocation == SourceLocation)
+	{
+		const FRotator ShootForwardRotator = FRotator(25.0f, 0.0f, 0.0f);
+		Impulse = ShootForwardRotator.RotateVector(FVector(DefaultProjectile->ProjectileSpeed, 0.0f, 0.0f));
+	}
+	else
+	{
+		FVector Direction = TargetLocation - SourceLocation;
+		Direction.Z = SourceLocation.Z;
+		const float X = Direction.Size2D(); // do this BEFORE normalization!!!
+		Direction.Normalize();
+
+		FQuat Quat = FQuat::FindBetweenNormals(Direction, FVector::ForwardVector);
+		FVector Axis;
+		float Yaw;
+		Quat.ToAxisAndAngle(Axis, Yaw);
+		SpawnTransform.SetRotation(FRotator(0.0f, Yaw, 0.0f).Quaternion());
+		Yaw = FMath::RadiansToDegrees(Yaw);
+		Yaw *= -Axis.Z;
+
+		const float G = -World->GetGravityZ();
+		const float Y = TargetLocation.Z - SourceLocation.Z;
+		const float V = DefaultProjectile->ProjectileSpeed;
+		const float RootPart = FMath::Sqrt(FMath::Pow(V, 4) - G * (G * FMath::Square(X) + 2 * Y * FMath::Square(V)));
+		const float Angle1 = FMath::RadiansToDegrees(FMath::Atan((FMath::Square(V) - RootPart) / (G * X)));
+		const float Angle2 = FMath::RadiansToDegrees(FMath::Atan((FMath::Square(V) + RootPart) / (G * X)));
+
+		float Angle = FMath::Abs(Angle1) < FMath::Abs(Angle2) ? Angle1 : Angle2;
+		Angle = FMath::Clamp(Angle, -90.0f, 90.0f);
+
+		Impulse = FRotator(Angle, Yaw, 0.0f).RotateVector(FVector::ForwardVector * DefaultProjectile->ProjectileSpeed);
+	}
 
 	AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SpawnTransform, SpawnParameters);
-	const FVector Impulse = SourceVelocity + SpawnedProjectile->GetActorRotation().RotateVector(
-		SpawnedProjectile->ProjectileImpulse);
 	SpawnedProjectile->ProjectileMesh->AddImpulse(Impulse, NAME_None, true);
 	return SpawnedProjectile;
 }

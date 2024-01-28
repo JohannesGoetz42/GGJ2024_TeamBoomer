@@ -91,7 +91,14 @@ void APlayerPawn::Shoot()
 		if (const APlayerControllerBase* PlayerController = Cast<APlayerControllerBase>(GetController());
 			ensure(PlayerController))
 		{
-			const FVector TargetLocation = PlayerController->GetCursorWorldLocation();
+			FVector TargetLocation = PlayerController->GetCursorWorldLocation();
+
+			// don't allow shooting back
+			if(TargetLocation.X < Mesh->GetComponentLocation().X)
+			{
+				TargetLocation = Mesh->GetComponentLocation();
+			}
+			
 			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, Mesh->GetComponentLocation(),
 			                             TargetLocation, MovementInput);
 			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());

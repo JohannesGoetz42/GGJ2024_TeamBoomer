@@ -39,6 +39,8 @@ void ABasicObstacle::HandleObstacleHit(UPrimitiveComponent* OverlappedComponent,
 	{
 		Mesh->AddImpulseAtLocation(ImpulseSource->GetImpulse(), SweepResult.Location);
 	}
+
+	Mesh->OnComponentBeginOverlap.RemoveDynamic(this, &ABasicObstacle::HandleObstacleHit);
 }
 
 // Called when the game starts or when spawned
