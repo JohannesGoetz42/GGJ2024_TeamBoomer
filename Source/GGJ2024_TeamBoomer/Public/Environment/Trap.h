@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/Actor.h"
 #include "Trap.generated.h"
 
+class AProjectile;
 class UBoxComponent;
 
 UENUM()
@@ -28,9 +30,11 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<UArrowComponent> AimArrow;
+	UPROPERTY(EditAnywhere)
 	TEnumAsByte<ETrapType> TrapType;
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UStaticMesh> SpawnedMesh;
+	TSubclassOf<AProjectile> SpawnedProjectile;
 	UPROPERTY(EditAnywhere)
 	/** The aim distance (Projectile forward) / MovementDistance (Hand grab) */
 	float Distance = 100.0f;

@@ -5,6 +5,7 @@
 
 #include "Components/AudioComponent.h"
 #include "Components/BoxComponent.h"
+#include "Player/Projectile.h"
 
 
 // Sets default values
@@ -25,12 +26,20 @@ ATrap::ATrap()
 	TriggerSound = CreateDefaultSubobject<UAudioComponent>("Audio comp");
 	TriggerSound->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	TriggerSound->SetPaused(true);
+
+	AimArrow = CreateDefaultSubobject<UArrowComponent>("Aim arrow");
+	AimArrow->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void ATrap::TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                         UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                         const FHitResult& SweepResult)
 {
+	if (!OtherActor->IsA<APawn>())
+	{
+		return;
+	}
+
 	FVector TargetLocation;
 	switch (TrapType)
 	{
@@ -38,16 +47,26 @@ void ATrap::TriggerTrap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 		ExecuteTrap();
 		break;
 	case TT_Projectile_Forward:
-		TargetLocation = Mesh->GetComponentLocation() + Mesh->GetForwardVector() * Distance;
+		if (ensure(SpawnedProjectile))
+		{
+			TargetLocation = AimArrow->GetComponentLocation() + AimArrow->GetForwardVector() * Distance;
+			AProjectile::SpawnProjectile(GetWorld(), SpawnedProjectile, nullptr, this, AimArrow->GetComponentLocation(),
+			                             TargetLocation);
+		}
 		break;
 	case TT_Projectile_Aimed:
-		TargetLocation = OverlappedComponent->GetComponentLocation();
-		break;
+		if (ensure(SpawnedProjectile))
+		{
+			TargetLocation = OverlappedComponent->GetComponentLocation();
+			AProjectile::SpawnProjectile(GetWorld(), SpawnedProjectile, nullptr, this, AimArrow->GetComponentLocation(),
+			                             TargetLocation);
+		}
+		break;;
 	case TT_Projectile_HandGrab:
 		ensure(false); // implement this!!!
 		break;
 	}
-	
+
 	TriggerSound->SetPaused(false);
 }
 

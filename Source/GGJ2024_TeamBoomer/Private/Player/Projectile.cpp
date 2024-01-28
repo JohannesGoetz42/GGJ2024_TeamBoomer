@@ -23,17 +23,19 @@ AProjectile::AProjectile()
 }
 
 AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, APawn* Instigator,
-                                          const FVector& SourceLocation, const FVector& TargetLocation,
-                                          const FVector& SourceVelocity)
+                                          AActor* Owner,
+                                          const FVector& SourceLocation, const FVector& TargetLocation)
 {
 	if (!ensure(ProjectileClass))
 	{
 		return nullptr;
 	}
 
+	DrawDebugLine(World, SourceLocation, TargetLocation, FColor::Yellow, true);
 	const AProjectile* DefaultProjectile = ProjectileClass.GetDefaultObject();
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = Instigator;
+	SpawnParameters.Owner = Owner;
 
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(SourceLocation);
@@ -61,6 +63,7 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
 
 		const float G = -World->GetGravityZ();
 		const float Y = TargetLocation.Z - SourceLocation.Z;
+		
 		const float V = DefaultProjectile->ProjectileSpeed;
 		const float RootPart = FMath::Sqrt(FMath::Pow(V, 4) - G * (G * FMath::Square(X) + 2 * Y * FMath::Square(V)));
 		const float Angle1 = FMath::RadiansToDegrees(FMath::Atan((FMath::Square(V) - RootPart) / (G * X)));
@@ -81,6 +84,12 @@ void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AAct
                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
                                   const FHitResult& SweepResult)
 {
+	// if this projectile is not shot by a pawn, only destroy when a pawn is hit
+	if (!GetInstigator() && !OtherActor->IsA<APawn>())
+	{
+		return;
+	}
+	
 	Destroy();
 }
 

@@ -7,7 +7,7 @@
 #include "Interfaces/AppliesPhysicsImpulse.h"
 #include "Projectile.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class GGJ2024_TEAMBOOMER_API AProjectile : public AActor, public IAppliesPhysicsImpulse
 {
 private:
@@ -18,8 +18,7 @@ public:
 	AProjectile();
 
 	static AProjectile* SpawnProjectile(UWorld* World, TSubclassOf<AProjectile> ProjectileClass, APawn* Instigator,
-	                                    const FVector& SourceLocation, const FVector& TargetLocation,
-	                                    const FVector& SourceVelocity);
+	                                    AActor* Owner, const FVector& SourceLocation, const FVector& TargetLocation);
 	int32 GetTearFluidCost() const { return TearFluidCost; }
 
 protected:

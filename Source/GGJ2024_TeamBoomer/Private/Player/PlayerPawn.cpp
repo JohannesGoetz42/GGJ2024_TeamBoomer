@@ -99,8 +99,8 @@ void APlayerPawn::Shoot()
 				TargetLocation = Mesh->GetComponentLocation();
 			}
 
-			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, Mesh->GetComponentLocation(),
-			                             TargetLocation, MovementInput);
+			AProjectile::SpawnProjectile(GetWorld(), ProjectileClass, this, this, Mesh->GetComponentLocation(),
+			                             TargetLocation);
 			RemoveTearFluidAmount(ProjectileClass.GetDefaultObject()->GetTearFluidCost());
 
 			PlayAnimation(AnimationData.ShootAnimation);
@@ -138,7 +138,7 @@ void APlayerPawn::HandleGameEnd()
 			HighScoreScreen->AddToViewport();
 		}
 	}
-	
+
 	SetActorTickEnabled(false);
 }
 
