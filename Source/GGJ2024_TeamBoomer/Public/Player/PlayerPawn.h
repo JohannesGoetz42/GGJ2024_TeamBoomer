@@ -161,7 +161,7 @@ protected:
 	{
 		PlayAnimation(AnimationData.JumpAnimation);
 		PlaySound(EPlayerPawnSoundType::PPST_Jump);
-		RollingMovementSound->SetVolumeMultiplier(0.0f);
+		RollingMovementSound->SetPaused(true);
 	}
 	void PlayAnimation(UAnimSequence* Animation, float PlaybackSpeed = 1.0f);
 	void SetRestoreMovementTimer(float Delay);

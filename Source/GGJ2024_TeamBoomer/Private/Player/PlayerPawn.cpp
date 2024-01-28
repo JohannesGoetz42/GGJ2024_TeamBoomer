@@ -269,5 +269,5 @@ void APlayerPawn::RestoreMovement()
 	}
 
 	PlaySound(EPlayerPawnSoundType::PPST_JumpEnd);
-	RollingMovementSound->SetVolumeMultiplier(1.0f);
+	RollingMovementSound->SetPaused(false);
 }
