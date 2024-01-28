@@ -9,6 +9,24 @@
 
 class UBoxComponent;
 
+UENUM()
+enum class EProjectileSoundType : uint8
+{
+	PST_Shoot UMETA(DisplayName = "Shoot"),
+	PST_Hit UMETA(DisplayName = "Hit")
+};
+
+USTRUCT()
+struct FProjectileSounds
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<USoundWave>> ShootSounds;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<USoundWave>> HitSounds;
+};
+
 UCLASS(Abstract)
 class GGJ2024_TEAMBOOMER_API AProjectile : public AActor, public IAppliesPhysicsImpulse
 {
@@ -24,6 +42,8 @@ public:
 	int32 GetTearFluidCost() const { return TearFluidCost; }
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	FProjectileSounds SoundData;
 	UPROPERTY(EditDefaultsOnly)
 	float ProjectileSpeed = 1500.0f;
 	UPROPERTY(EditDefaultsOnly)
@@ -44,5 +64,6 @@ protected:
 	void HandleCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	                     int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	virtual FVector GetImpulse() const override;
+	void PlaySound(EProjectileSoundType SoundType);
 	virtual void Tick(float DeltaSeconds) override;
 };

@@ -4,6 +4,7 @@
 #include "Player/Projectile.h"
 
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/PlayerPawn.h"
 
 // Sets default values
@@ -92,6 +93,7 @@ AProjectile* AProjectile::SpawnProjectile(UWorld* World, TSubclassOf<AProjectile
 		SpawnedProjectile->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 	SpawnedProjectile->ProjectileMesh->AddImpulse(Impulse, NAME_None, true);
+	SpawnedProjectile->PlaySound(EProjectileSoundType::PST_Shoot);
 	return SpawnedProjectile;
 }
 
@@ -118,6 +120,35 @@ void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AAct
 FVector AProjectile::GetImpulse() const
 {
 	return (ProjectileMesh->GetComponentLocation() - PreviousTickLocation) * Mass;
+}
+
+void AProjectile::PlaySound(EProjectileSoundType SoundType)
+{
+	USoundWave* Sound = nullptr;
+	int32 SoundIndex = 0;
+	switch (SoundType)
+	{
+	case EProjectileSoundType::PST_Shoot:
+		if (SoundData.ShootSounds.Num() > 0)
+		{
+			SoundIndex = FMath::RandRange(0, SoundData.ShootSounds.Num() - 1);
+			Sound = SoundData.ShootSounds[SoundIndex];
+		}
+		break;
+	case EProjectileSoundType::PST_Hit:
+		if (SoundData.HitSounds.Num() > 0)
+		{
+			SoundIndex = FMath::RandRange(0, SoundData.HitSounds.Num() - 1);
+			Sound = SoundData.HitSounds[SoundIndex];
+		}
+		break;
+	}
+
+	if (Sound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, ProjectileMesh->GetComponentLocation(),
+		                                      ProjectileMesh->GetComponentRotation());
+	}
 }
 
 void AProjectile::Tick(float DeltaSeconds)
