@@ -49,6 +49,7 @@ void APlayerPawn::AddTearFluid(int32 AddedAmount)
 
 	CurrentTearFluid = FMath::Min(MaximumTearFluid, CurrentTearFluid + AddedAmount);
 	OnTearFluidAmountChanged.Broadcast();
+	PlaySound(EPlayerPawnSoundType::PPST_FillTear);
 }
 
 void APlayerPawn::RemoveTearFluidAmount(int32 RemovedAmount)
@@ -67,6 +68,7 @@ void APlayerPawn::ReceiveDamage(int32 DamageAmount)
 {
 	CurrentScore -= DamageAmount;
 	RemoveTearFluidAmount(DamageAmount);
+	PlaySound(EPlayerPawnSoundType::PPST_TakeDamage);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst - bound to overlap delegate
@@ -209,6 +211,20 @@ void APlayerPawn::BeginPlay()
 	PreviousTickLocation = Mesh->GetComponentLocation();
 
 	RestoreMovement();
+}
+
+void APlayerPawn::PlaySound(EPlayerPawnSoundType SoundType) const
+{
+	if (const TArray<TObjectPtr<USoundWave>>* SelectedSounds = SoundData.GetSoundsByType(SoundType))
+	{
+		const TArray<TObjectPtr<USoundWave>>& Sounds = *SelectedSounds;
+		const int32 SoundIndex = FMath::RandRange(0, Sounds.Num() - 1);;
+		if (USoundWave* Sound = Sounds[SoundIndex])
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, Mesh->GetComponentLocation(),
+			                                      Mesh->GetComponentRotation());
+		}
+	}
 }
 
 // Called every frame

@@ -108,7 +108,7 @@ void AProjectile::HandleCollision(UPrimitiveComponent* OverlappedComponent, AAct
 	}
 
 	PlaySound(EProjectileSoundType::PST_Hit);
-	
+
 	if (OverlappedComponent == CollisionBox)
 	{
 		if (APlayerPawn* Player = Cast<APlayerPawn>(OtherActor))
@@ -125,32 +125,17 @@ FVector AProjectile::GetImpulse() const
 	return (ProjectileMesh->GetComponentLocation() - PreviousTickLocation) * Mass;
 }
 
-void AProjectile::PlaySound(EProjectileSoundType SoundType)
+void AProjectile::PlaySound(EProjectileSoundType SoundType) const
 {
-	USoundWave* Sound = nullptr;
-	int32 SoundIndex = 0;
-	switch (SoundType)
+	if (const TArray<TObjectPtr<USoundWave>>* SelectedSounds = SoundData.GetSoundsByType(SoundType))
 	{
-	case EProjectileSoundType::PST_Shoot:
-		if (SoundData.ShootSounds.Num() > 0)
+		const TArray<TObjectPtr<USoundWave>>& Sounds = *SelectedSounds;
+		const int32 SoundIndex = FMath::RandRange(0, Sounds.Num() - 1);;
+		if (USoundWave* Sound = Sounds[SoundIndex])
 		{
-			SoundIndex = FMath::RandRange(0, SoundData.ShootSounds.Num() - 1);
-			Sound = SoundData.ShootSounds[SoundIndex];
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, ProjectileMesh->GetComponentLocation(),
+			                                      ProjectileMesh->GetComponentRotation());
 		}
-		break;
-	case EProjectileSoundType::PST_Hit:
-		if (SoundData.HitSounds.Num() > 0)
-		{
-			SoundIndex = FMath::RandRange(0, SoundData.HitSounds.Num() - 1);
-			Sound = SoundData.HitSounds[SoundIndex];
-		}
-		break;
-	}
-
-	if (Sound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, ProjectileMesh->GetComponentLocation(),
-		                                      ProjectileMesh->GetComponentRotation());
 	}
 }
 

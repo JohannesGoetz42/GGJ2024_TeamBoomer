@@ -12,7 +12,7 @@
 #define INPUT_SHOOT "Shoot"
 #define INPUT_JUMP "Jump"
 
-#define SOCKETS_CENTER FName("Center") 
+#define SOCKETS_CENTER FName("Center")
 
 class USphereComponent;
 class UPlayerAnimBP;
@@ -22,6 +22,15 @@ class USpringArmComponent;
 class UCameraComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FTearFluidAmountChangedDelegate);
+
+UENUM()
+enum class EPlayerPawnSoundType : uint8
+{
+	PPST_TakeDamage UMETA(DisplayName = "Take damage"),
+	PPST_Jump UMETA(DisplayName = "Jump"),
+	PPST_JumpEnd UMETA(DisplayName = "Jump end"),
+	PPST_FillTear UMETA(DisplayName = "Fill tear")
+};
 
 USTRUCT()
 struct FAnimationData
@@ -36,10 +45,42 @@ struct FAnimationData
 	TObjectPtr<UAnimSequence> RollLoop;
 };
 
+USTRUCT()
+struct FPlayerSoundData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<USoundWave>> TakeDamageSounds;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<USoundWave>> JumpSounds;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<USoundWave>> JumpEndSounds;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<USoundWave>> TearFill;
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TObjectPtr<USoundWave>> Laugh;
+
+	const TArray<TObjectPtr<USoundWave>>* GetSoundsByType(EPlayerPawnSoundType SoundType) const
+	{
+		switch (SoundType)
+		{
+		case EPlayerPawnSoundType::PPST_TakeDamage:
+			return &TakeDamageSounds;
+		case EPlayerPawnSoundType::PPST_Jump:
+			return &JumpSounds;
+		case EPlayerPawnSoundType::PPST_JumpEnd:
+			return &JumpEndSounds;
+		case EPlayerPawnSoundType::PPST_FillTear:
+			return &TearFill;
+		}
+		return nullptr;
+	}
+};
+
 UCLASS()
 class GGJ2024_TEAMBOOMER_API APlayerPawn : public APawn, public IAppliesPhysicsImpulse
 {
-
 private:
 	GENERATED_BODY()
 
@@ -47,9 +88,11 @@ public:
 	// Sets default values for this pawn's properties
 	APlayerPawn();
 
-	void HandleGameEnd();	
+	void HandleGameEnd();
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	FPlayerSoundData SoundData;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USphereComponent> CollisionSphere;
 	UPROPERTY(EditDefaultsOnly)
@@ -100,7 +143,7 @@ public:
 
 protected:
 	bool bIsGameOver;
-	
+
 	UFUNCTION()
 	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	                   int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -117,4 +160,5 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
+	void PlaySound(EPlayerPawnSoundType SoundType) const;
 };

@@ -25,6 +25,18 @@ struct FProjectileSounds
 	TArray<TObjectPtr<USoundWave>> ShootSounds;
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TObjectPtr<USoundWave>> HitSounds;
+
+	const TArray<TObjectPtr<USoundWave>>* GetSoundsByType(EProjectileSoundType SoundType) const
+	{
+		switch (SoundType)
+		{
+		case EProjectileSoundType::PST_Shoot:
+			return &ShootSounds;
+		case EProjectileSoundType::PST_Hit:
+			return &HitSounds;
+		}
+		return nullptr;
+	}
 };
 
 UCLASS(Abstract)
@@ -64,6 +76,6 @@ protected:
 	void HandleCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	                     int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	virtual FVector GetImpulse() const override;
-	void PlaySound(EProjectileSoundType SoundType);
+	void PlaySound(EProjectileSoundType SoundType) const;
 	virtual void Tick(float DeltaSeconds) override;
 };
