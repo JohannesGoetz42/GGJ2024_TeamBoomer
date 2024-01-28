@@ -4,6 +4,7 @@
 #include "Player/MovementSpline.h"
 
 #include "Components/SplineComponent.h"
+#include "Player/PlayerPawn.h"
 
 // Sets default values
 AMovementSpline::AMovementSpline()
@@ -16,7 +17,7 @@ AMovementSpline::AMovementSpline()
 	SplineComponent->EditorUnselectedSplineSegmentColor = FColor::Green;
 }
 
-void AMovementSpline::ControlPawn(APawn* PawnToControl)
+void AMovementSpline::ControlPawn(APlayerPawn* PawnToControl)
 {
 	if (ensure(PawnToControl))
 	{
@@ -34,6 +35,13 @@ void AMovementSpline::Tick(float DeltaTime)
 	if (ensure(ControlledPawn))
 	{
 		CurrentDuration += DeltaTime;
+		if (CurrentDuration > SplineComponent->Duration)
+		{
+			ControlledPawn->HandleGameEnd();
+			SetActorTickEnabled(false);
+			return;
+		}
+
 		const FTransform SplineTransform = SplineComponent->GetTransformAtTime(
 			CurrentDuration, ESplineCoordinateSpace::World,
 			true);

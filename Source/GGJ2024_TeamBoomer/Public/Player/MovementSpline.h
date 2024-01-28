@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "MovementSpline.generated.h"
 
+class APlayerPawn;
 class USplineComponent;
 
 UCLASS()
@@ -17,13 +18,13 @@ public:
 	// Sets default values for this actor's properties
 	AMovementSpline();
 
-	void ControlPawn(APawn* PawnToControl);
+	void ControlPawn(APlayerPawn* PawnToControl);
 
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USplineComponent> SplineComponent;
 	UPROPERTY()
-	TObjectPtr<APawn> ControlledPawn;
+	TObjectPtr<APlayerPawn> ControlledPawn;
 
 	float CurrentDuration;
 	

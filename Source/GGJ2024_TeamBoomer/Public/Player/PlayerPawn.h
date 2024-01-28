@@ -47,6 +47,8 @@ public:
 	// Sets default values for this pawn's properties
 	APlayerPawn();
 
+	void HandleGameEnd();	
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USphereComponent> CollisionSphere;
@@ -67,6 +69,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UUserWidget> GameOverScreenClass;
 	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> HighScoreScreenClass;
+	UPROPERTY(EditDefaultsOnly)
 	float MaxMovementSpeed = 50.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float JumpStrength = 100.0f;
@@ -77,6 +81,8 @@ protected:
 	FTearFluidAmountChangedDelegate OnTearFluidAmountChanged;
 	UPROPERTY(EditDefaultsOnly)
 	float Mass = 10.0f;
+	UPROPERTY(BlueprintReadOnly)
+	int32 CurrentScore;
 
 	FTimerHandle RestoreMovementTimer;
 	FVector MovementInput;
